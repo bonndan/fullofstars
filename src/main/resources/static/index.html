@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>It's full of stars</title>
+        <meta name="description" content="" />
+        <meta name="viewport" content="width=device-width" />
+        <base href="/" />
+        <link rel="stylesheet" type="text/css"
+              href="/webjars/bootstrap/css/bootstrap.min.css" />
+        <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+        <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+
+    </head>
+    <body ng-app="app">
+
+        <nav class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+              <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                  <span class="sr-only">Toggle navigation</span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">It's full of stars!</a>
+              </div>
+              <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                  <li class="active"><a href="#">Home</a></li>
+                  <li><a href="#about">About</a></li>
+                  <li><a href="#contact">Contact</a></li>
+                </ul>
+              </div><!--/.nav-collapse -->
+            </div>
+        </nav>
+        <div ng-view></div>
+
+        <script type="text/javascript" src="/webjars/angularjs/angular.js"></script>
+        <script type="text/javascript" src="/webjars/angularjs/angular-route.js"></script>
+        <script type="text/javascript">
+                    angular
+                            .module("app", ['ngRoute'])
+                            .config(
+                                    function ($httpProvider, $routeProvider) {
+                                        $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+                                        $routeProvider.
+                                                when('/home', {
+                                                    templateUrl: 'home.html',
+                                                    controller: 'home'
+                                                })
+                                                .when('/stars', {
+                                                    templateUrl: 'stars.html',
+                                                    controller: 'stars'
+                                                }).
+                                                otherwise({
+                                                    redirectTo: '/home'
+                                                });
+                                    }
+                            )
+                            .controller("home", function ($http, $location, $scope) {
+                                
+                                var self = this;
+                                $http.get("/api/user").success(function (data) {
+                                    if (data.name) {
+                                        $scope.user = data.name;
+                                        $scope.authenticated = true;
+                                    } else {
+                                        $scope.user = "N/A";
+                                        $scope.authenticated = false;
+                                    }
+                                }).error(function () {
+                                    $scope.user = "N/A";
+                                    $scope.authenticated = false;
+                                });
+                                self.logout = function () {
+                                    $http.post('logout', {}).success(function () {
+                                        $scope.authenticated = false;
+                                        $location.path("/");
+                                    }).error(function (data) {
+                                        console.log("Logout failed")
+                                        $scope.authenticated = false;
+                                    });
+                                };
+                            })
+                            .controller("stars", function ($http, $scope) {
+                                $http.get("/api/stars").success(function (data) {
+                                    $scope.stars = data;
+                                }).error(function () {
+                                    $scope.stars = [];
+                                });
+                            });
+        </script>
+
+        <script type="text/ng-template" id="home.html">
+            <div class="container" ng-show="!authenticated">
+                <h1>Login</h1>
+                <div>
+                    With Github: <a href="/login/github">click here</a>
+                </div>
+            </div>
+            <div class="container" ng-show="authenticated">
+                Logged in as: <span ng-bind="user"></span>
+                <a href="#/stars">stars</a>
+                <div>
+                    <button ng-click="logout()" class="btn btn-primary">Logout</button>
+                </div>
+            </div>
+        </script>
+
+
+        <script type="text/ng-template" id="stars.html">
+            <ul >
+                <li ng-repeat="star in stars">
+                    <a href="{{star.url}}">{{star.title}}</a>
+                </li>
+            </ul>
+        </script>
+    </body>
+</html>

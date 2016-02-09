@@ -1,0 +1,26 @@
+server:  
+  port: 8443
+  ssl:
+    enabled: true
+    key-alias: fosdev
+    key-store: keystore.p12
+    key-store-password: fosdev
+
+github:
+  client:
+    clientId: 9b8bc97bfa2d59a5f3a6
+    clientSecret: f44776795a80e904fc2cd6fefe9aa000261fe023
+    accessTokenUri: https://github.com/login/oauth/access_token
+    userAuthorizationUri: https://github.com/login/oauth/authorize
+    clientAuthenticationScheme: form
+  resource:
+    userInfoUri: https://api.github.com/user
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+
+spring:
+  resources:
+    chain:
+      enabled: true
