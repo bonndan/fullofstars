@@ -29,14 +29,16 @@
               <div id="navbar" class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
                   <li class="active"><a href="#">Home</a></li>
-                  <li><a href="#about">About</a></li>
-                  <li><a href="#contact">Contact</a></li>
+                  <li><a href="#/stars">Stars</a></li>
+                  <li><a href="#/blips">Blips</a></li>
                 </ul>
               </div><!--/.nav-collapse -->
             </div>
         </nav>
-        <div ng-view></div>
-
+        <div class="container" style="padding-top: 40px">
+            <div ng-view></div>    
+        </div>
+        
         <script type="text/javascript" src="/webjars/angularjs/angular.js"></script>
         <script type="text/javascript" src="/webjars/angularjs/angular-route.js"></script>
         <script type="text/javascript">
@@ -53,6 +55,10 @@
                                                 .when('/stars', {
                                                     templateUrl: 'stars.html',
                                                     controller: 'stars'
+                                                })
+                                                .when('/blips', {
+                                                    templateUrl: 'blips.html',
+                                                    controller: 'blips'
                                                 }).
                                                 otherwise({
                                                     redirectTo: '/home'
@@ -90,6 +96,13 @@
                                 }).error(function () {
                                     $scope.stars = [];
                                 });
+                            })
+                            .controller("blips", function ($http, $scope) {
+                                $http.get("/api/blips").success(function (data) {
+                                    $scope.blips = data;
+                                }).error(function () {
+                                    $scope.blips = [];
+                                });
                             });
         </script>
 
@@ -114,6 +127,14 @@
             <ul >
                 <li ng-repeat="star in stars">
                     <a href="{{star.url}}">{{star.title}}</a>
+                </li>
+            </ul>
+        </script>
+        
+        <script type="text/ng-template" id="blips.html">
+            <ul >
+                <li ng-repeat="blip in blips">
+                    <a href="{{blip.url}}">{{blip.title}}</a>
                 </li>
             </ul>
         </script>

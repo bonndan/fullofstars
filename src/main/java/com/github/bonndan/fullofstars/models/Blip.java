@@ -1,7 +1,15 @@
 package com.github.bonndan.fullofstars.models;
 
+import java.io.Serializable;
 import java.net.URL;
-import org.kohsuke.github.GHRepository;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
+import javax.validation.constraints.Max;
+import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  *A blip on the tech radar.
@@ -9,22 +17,24 @@ import org.kohsuke.github.GHRepository;
  * 
  * 
  */
-public class Blip {
-
-    public static Blip fromGHRepository(GHRepository ghr) {
-        
-        Blip blip = new Blip();
-        blip.setTitle(ghr.getFullName());
-        blip.setUrl(ghr.getHtmlUrl());
-        blip.setLanguage(ghr.getLanguage());
-        return blip;
-    }
+@Entity
+public class Blip implements Serializable  {
     
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private long id;
+    
+    @MapsId @ManyToOne
+    private User user;
+    
+    @NotEmpty
     private String title;
     private URL url;
     private String language;
     private TechRadar.Quadrant quadrant;
-    private TechRadar.Assessment assessment;
+    
+    @Max(100)
+    private Integer proximity;
 
     public String getTitle() {
         return title;
@@ -50,14 +60,6 @@ public class Blip {
         this.quadrant = quadrant;
     }
 
-    public TechRadar.Assessment getAssessment() {
-        return assessment;
-    }
-
-    public void setAssessment(TechRadar.Assessment assessment) {
-        this.assessment = assessment;
-    }
-
     public String getLanguage() {
         return language;
     }
@@ -65,6 +67,13 @@ public class Blip {
     public void setLanguage(String language) {
         this.language = language;
     }
-    
+
+    public Integer getProximity() {
+        return proximity;
+    }
+
+    public void setProximity(Integer proximity) {
+        this.proximity = proximity;
+    }
     
 }

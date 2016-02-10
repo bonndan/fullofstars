@@ -15,17 +15,9 @@
  */
 package com.github.bonndan.fullofstars;
 
-import com.github.bonndan.fullofstars.models.Blip;
-import com.squareup.okhttp.Cache;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.OkUrlFactory;
-import java.io.File;
 import java.io.IOException;
-import java.security.Principal;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -33,12 +25,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.kohsuke.github.GHRepository;
-
-import org.kohsuke.github.GitHub;
-import org.kohsuke.github.GitHubBuilder;
-import org.kohsuke.github.PagedIterable;
-import org.kohsuke.github.extras.OkHttpConnector;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -63,53 +49,21 @@ import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.filter.CompositeFilter;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.WebUtils;
 
 /**
  * https://spring.io/guides/tutorials/spring-boot-oauth2/
- * 
+ *
  */
 @SpringBootApplication
-@RestController
 @EnableOAuth2Client
 public class FOSApplication extends WebSecurityConfigurerAdapter {
 
     @Autowired
     OAuth2ClientContext oauth2ClientContext;
 
-    @RequestMapping({"/api/user"})
-    public Map<String, String> user(Principal principal) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("name", principal.getName());
-        return map;
-    }
-
-    @RequestMapping({"/api/stars"})
-    public List<Blip> stars(Principal principal) throws IOException {
-        GitHub gitHubClient = getGitHubClient(principal);
-        PagedIterable<GHRepository> listStarredRepositories = gitHubClient.getMyself().listStarredRepositories().withPageSize(10);
-        
-        List <Blip> blips = new ArrayList<>();
-        for (GHRepository ghr : listStarredRepositories.asList()) {
-            blips.add(Blip.fromGHRepository(ghr));
-        }
-        
-        return blips;
-    }
-
-    private GitHub getGitHubClient(Principal principal) throws IOException {
-
-        String tempDir = System.getProperty("java.io.tmpdir") + "/" + principal.getName();
-        Cache cache = new Cache(new File(tempDir), 10 * 1024 * 1024); // 10MB cache
-        GitHub gitHub = new GitHubBuilder().withOAuthToken(oauth2ClientContext.getAccessToken().getValue(), principal.getName())
-                .withConnector(new OkHttpConnector(new OkUrlFactory(new OkHttpClient().setCache(cache))))
-                .build();
-        return gitHub;
-    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
